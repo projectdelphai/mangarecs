@@ -1,4 +1,7 @@
 from flask import Flask
+from flask import request
+from flask import redirect
+from flask import url_for
 from flask import render_template
 from flask.ext.sqlalchemy import SQLAlchemy
 
@@ -21,7 +24,13 @@ class Manga(db.Model):
 
 @app.route('/')
 def index():
-    return 'Hello /r/manga'
+    return render_template('index.html')
+
+@app.route('/', methods=['POST'])
+def recs_post():
+    text = request.form['text']
+    text.replace(' ', '_')
+    return redirect(url_for('recommendations', manga_name=text))
 
 @app.route('/recs/<manga_name>')
 def recommendations(manga_name):
