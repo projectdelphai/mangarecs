@@ -29,7 +29,7 @@ def index():
 @app.route('/', methods=['POST'])
 def recs_post():
     text = request.form['text']
-    text.replace(' ', '_')
+    text = text.replace(' ', '_')
     return redirect(url_for('recommendations', manga_name=text))
 
 @app.route('/recs/<manga_name>')
