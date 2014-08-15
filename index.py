@@ -4,9 +4,13 @@ from flask import redirect
 from flask import url_for
 from flask import render_template
 from flask.ext.sqlalchemy import SQLAlchemy
+import os
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://test:test@localhost/mangarecs'
+if "DATABASE_URL" in os.environ:
+    app.config['SQLALCHEMY_DATABASE_URI'] = os.environ['DATABASE_URL']
+else:
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://test:test@localhost/mangarecs'
 db = SQLAlchemy(app)
 
 class Manga(db.Model):
