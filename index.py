@@ -21,16 +21,37 @@ class Manga(db.Model):
     def __repr__(self):
         return '<Manga: %r>' % self.name
 
-
 @app.route('/')
 def index():
     return render_template('index.html')
 
-@app.route('/', methods=['POST'])
+@app.route('/recs')
+def recs_index_without_trailing_slash():
+    return redirect(url_for('recs_index'))
+
+@app.route('/commonrecs')
+def common_recs_index_without_trailing_slash():
+    return redirect(url_for('common_recs_index'))
+
+@app.route('/recs/')
+def recs_index():
+    return render_template('recs.html')
+
+@app.route('/recs/', methods=['POST'])
 def recs_post():
     text = request.form['text']
     text = text.replace(' ', '_')
     return redirect(url_for('recommendations', manga_name=text))
+
+@app.route('/commonrecs/')
+def common_recs_index():
+    return render_template('recs.html')
+
+@app.route('/commonrecs/', methods=['POST'])
+def common_recs_post():
+    text = request.form['text']
+    text = text.replace(' ', '_')
+    return redirect(url_for('common_recommendations', manga_name=text))
 
 @app.route('/recs/<manga_name>')
 def recommendations(manga_name):
