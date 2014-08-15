@@ -41,5 +41,18 @@ def recommendations(manga_name):
     recs = [item.name for item in manga]
     return render_template('recommendations.html', manga_name=manga_name, recs=recs)
 
+@app.route('/commonrecs/<manga_name>')
+def common_recommendations(manga_name):
+    manga_name = manga_name.replace('_', ' ')
+    users = Manga.query.filter_by(name=manga_name).all()
+    users = [user.recommender for user in users]
+    manga = Manga.query.filter(Manga.recommender.in_(users)).filter(Manga.name!=manga_name).all()
+    recs = [item.name for item in manga]
+    array = []
+    for x in recs:
+        if (recs.count(x) > 1 and array.count(x) == 0):
+            array.append(x)
+    return render_template('recommendations.html', manga_name=manga_name, recs=array)
+
 if __name__ == '__main__':
     app.run(debug=True);
