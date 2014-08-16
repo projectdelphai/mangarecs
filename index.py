@@ -39,7 +39,7 @@ def common_recs_index_without_trailing_slash():
 
 @app.route('/recs/')
 def recs_index():
-    return render_template('recs.html')
+    return render_template('recs.html', type='recs')
 
 @app.route('/recs/', methods=['POST'])
 def recs_post():
@@ -49,7 +49,7 @@ def recs_post():
 
 @app.route('/commonrecs/')
 def common_recs_index():
-    return render_template('recs.html')
+    return render_template('recs.html', type='commonrecs')
 
 @app.route('/commonrecs/', methods=['POST'])
 def common_recs_post():
@@ -64,7 +64,11 @@ def recommendations(manga_name):
     users = [user.recommender for user in users]
     manga = Manga.query.filter(Manga.recommender.in_(users)).filter(Manga.name!=manga_name).all()
     recs = [item.name for item in manga]
-    return render_template('recommendations.html', manga_name=manga_name, recs=recs)
+    array = []
+    for x in recs:
+        if x not in array:
+            array.append(x)
+    return render_template('recommendations.html', manga_name=manga_name, recs=array)
 
 @app.route('/commonrecs/<manga_name>')
 def common_recommendations(manga_name):
