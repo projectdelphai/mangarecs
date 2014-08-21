@@ -8,6 +8,7 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import Column, Integer, Text
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy import distinct
+from sqlalchemy import func,desc,asc
 import os
 
 app = Flask(__name__)
@@ -66,8 +67,10 @@ def recommendations(manga_name):
     session = Session()
     manga_name = manga_name.replace('_', ' ')
     users = session.query(Manga.recommender).filter(Manga.name==manga_name).all()
-    manga = session.query(Manga.name).filter(Manga.recommender.in_(users), Manga.name != manga_name).distinct(Manga.name).all()
+    manga = session.query(Manga.name, func.count(Manga.name) ).filter(Manga.recommender.in_(users), Manga.name != manga_name).group_by(Manga.name).order_by(func.count(Manga.name)).all()
+    print(manga)
     recs = [item.name for item in manga]
+    recs.reverse()
     return render_template('recommendations.html', manga_name=manga_name, recs=recs)
 
 @app.route('/commonrecs/<manga_name>')
