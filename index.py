@@ -3,27 +3,31 @@ from flask import request
 from flask import redirect
 from flask import url_for
 from flask import render_template
-from flask.ext.sqlalchemy import SQLAlchemy
+from sqlalchemy import create_engine
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy import Column, Integer, Text
+from sqlalchemy.orm import sessionmaker
+from sqlalchemy import distinct
 import os
 
 app = Flask(__name__)
 if "DATABASE_URL" in os.environ:
-    app.config['SQLALCHEMY_DATABASE_URI'] = os.environ['DATABASE_URL']
+    engine = create_engine(os.environ['DATABASE_URL'], echo=True)
 else:
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://test:test@localhost/mangarecs'
-db = SQLAlchemy(app)
+    engine = create_engine('postgresql://test:test@localhost/mangarecs', echo=True)
 
-class Manga(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.Text)
-    recommender = db.Column(db.Text)
+Base = declarative_base()
+class Manga(Base):
+    __tablename__ = 'manga'
 
-    def __init__(self, name, recommender):
-        self.name = name
-        self.recommender = recommender
+    id = Column(Integer, primary_key=True)
+    name = Column(Text)
+    recommender = Column(Text)
 
     def __repr__(self):
-        return '<Manga: %r>' % self.name
+        return "<Manga(name='%s', recommender='%s')>" % (self.name, self,recommender)
+
+Session = sessionmaker(bind=engine)
 
 @app.route('/')
 def index():
@@ -59,23 +63,19 @@ def common_recs_post():
 
 @app.route('/recs/<manga_name>')
 def recommendations(manga_name):
+    session = Session()
     manga_name = manga_name.replace('_', ' ')
-    users = Manga.query.filter_by(name=manga_name).all()
-    users = [user.recommender for user in users]
-    manga = Manga.query.filter(Manga.recommender.in_(users)).filter(Manga.name!=manga_name).all()
+    users = session.query(Manga.recommender).filter(Manga.name==manga_name).all()
+    manga = session.query(Manga.name).filter(Manga.recommender.in_(users), Manga.name != manga_name).distinct(Manga.name).all()
     recs = [item.name for item in manga]
-    array = []
-    for x in recs:
-        if x not in array:
-            array.append(x)
-    return render_template('recommendations.html', manga_name=manga_name, recs=array)
+    return render_template('recommendations.html', manga_name=manga_name, recs=recs)
 
 @app.route('/commonrecs/<manga_name>')
 def common_recommendations(manga_name):
+    session = Session()
     manga_name = manga_name.replace('_', ' ')
-    users = Manga.query.filter_by(name=manga_name).all()
-    users = [user.recommender for user in users]
-    manga = Manga.query.filter(Manga.recommender.in_(users)).filter(Manga.name!=manga_name).all()
+    users = session.query(Manga.recommender).filter(Manga.name==manga_name).all()
+    manga = session.query(Manga.name).filter(Manga.recommender.in_(users), Manga.name != manga_name).all()
     recs = [item.name for item in manga]
     array = []
     for x in recs:
