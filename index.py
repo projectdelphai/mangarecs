@@ -66,9 +66,15 @@ def common_recs_post():
 def recommendations(manga_name):
     session = Session()
     manga_name = manga_name.replace('_', ' ')
-    users = session.query(Manga.recommender).filter(func.lower(Manga.name)==manga_name.lower()).all()
-    manga = session.query(Manga.name, func.count(Manga.name) ).filter(Manga.recommender.in_(users), Manga.name != manga_name).group_by(Manga.name).order_by(func.count(Manga.name)).all()
-    print(manga)
+    users = session.query(Manga.name, Manga.recommender).filter(func.lower(Manga.name)==manga_name.lower()).all()
+    if len(users) == 0:
+        first_manga = session.query(Manga.name, func.levenshtein(Manga.name, manga_name,2,1,4)).filter(func.levenshtein(Manga.name, manga_name,2,1,4)<15).order_by(asc(func.levenshtein(Manga.name, manga_name,2,1,4))).first()
+        users = session.query(Manga.name, Manga.recommender).filter(Manga.name==first_manga.name).all()
+        manga_name = users[0].name
+    else:
+        manga_name = users[0].name
+    users = [item.recommender for item in users]
+    manga = session.query(Manga.name, func.count(Manga.name) ).filter(Manga.recommender.in_(users), func.lower(Manga.name) != manga_name.lower()).group_by(Manga.name).order_by(func.count(Manga.name)).all()
     recs = [item.name for item in manga]
     recs.reverse()
     return render_template('recommendations.html', manga_name=manga_name, recs=recs)
@@ -77,8 +83,15 @@ def recommendations(manga_name):
 def common_recommendations(manga_name):
     session = Session()
     manga_name = manga_name.replace('_', ' ')
-    users = session.query(Manga.recommender).filter(func.lower(Manga.name)==manga_name.lower()).all()
-    manga = session.query(Manga.name).filter(Manga.recommender.in_(users), Manga.name != manga_name).all()
+    users = session.query(Manga.name, Manga.recommender).filter(func.lower(Manga.name)==manga_name.lower()).all()
+    if len(users) == 0:
+        first_manga = session.query(Manga.name, func.levenshtein(Manga.name, manga_name,2,1,4)).filter(func.levenshtein(Manga.name, manga_name,2,1,4)<15).order_by(asc(func.levenshtein(Manga.name, manga_name,2,1,4))).first()
+        users = session.query(Manga.name, Manga.recommender).filter(Manga.name==first_manga.name).all()
+        manga_name = users[0].name
+    else:
+        manga_name = users[0].name
+    users = [item.recommender for item in users]
+    manga = session.query(Manga.name).filter(Manga.recommender.in_(users), func.lower(Manga.name) != manga_name.lower()).all()
     recs = [item.name for item in manga]
     array = []
     for x in recs:
