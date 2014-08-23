@@ -66,7 +66,7 @@ def common_recs_post():
 def recommendations(manga_name):
     session = Session()
     manga_name = manga_name.replace('_', ' ')
-    users = session.query(Manga.recommender).filter(Manga.name==manga_name).all()
+    users = session.query(Manga.recommender).filter(func.lower(Manga.name)==manga_name.lower()).all()
     manga = session.query(Manga.name, func.count(Manga.name) ).filter(Manga.recommender.in_(users), Manga.name != manga_name).group_by(Manga.name).order_by(func.count(Manga.name)).all()
     print(manga)
     recs = [item.name for item in manga]
@@ -77,7 +77,7 @@ def recommendations(manga_name):
 def common_recommendations(manga_name):
     session = Session()
     manga_name = manga_name.replace('_', ' ')
-    users = session.query(Manga.recommender).filter(Manga.name==manga_name).all()
+    users = session.query(Manga.recommender).filter(func.lower(Manga.name)==manga_name.lower()).all()
     manga = session.query(Manga.name).filter(Manga.recommender.in_(users), Manga.name != manga_name).all()
     recs = [item.name for item in manga]
     array = []
