@@ -71,7 +71,7 @@ def recommendations(manga_name):
     users = session.query(Manga.name, Manga.recommender).filter(func.lower(Manga.name)==manga_name.lower()).all()
     if len(users) == 0:
         first_manga = session.query(Manga.name, func.levenshtein(Manga.name, manga_name,2,1,4)).filter(func.levenshtein(Manga.name, manga_name,2,1,4)<15).order_by(asc(func.levenshtein(Manga.name, manga_name,2,1,4))).first()
-        if len(users) > 0:
+        if len(first_manga) > 0:
             users = session.query(Manga.name, Manga.recommender).filter(Manga.name==first_manga.name).all()
             manga_name = users[0].name
         else:
@@ -92,7 +92,7 @@ def common_recommendations(manga_name):
     users = session.query(Manga.name, Manga.recommender).filter(func.lower(Manga.name)==manga_name.lower()).all()
     if len(users) == 0:
         first_manga = session.query(Manga.name, func.levenshtein(Manga.name, manga_name,2,1,4)).filter(func.levenshtein(Manga.name, manga_name,2,1,4)<15).order_by(asc(func.levenshtein(Manga.name, manga_name,2,1,4))).first()
-        if len(users) > 0:
+        if len(first_manga) > 0:
             users = session.query(Manga.name, Manga.recommender).filter(Manga.name==first_manga.name).all()
             manga_name = users[0].name
         else:
