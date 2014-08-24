@@ -15,9 +15,9 @@ import os
 app = Flask(__name__)
 app.config.from_object(config)
 if "DATABASE_URL" in os.environ:
-    engine = create_engine(os.environ['DATABASE_URL'], echo=True)
+    engine = create_engine(os.environ['DATABASE_URL'], echo_pool=True, pool_size=20, max_overflow=0)
 else:
-    engine = create_engine('postgresql://test:test@localhost/mangarecs', echo=True)
+    engine = create_engine('postgresql://test:test@localhost/mangarecs', echo_pool="debug")
 
 Base = declarative_base()
 class Manga(Base):
