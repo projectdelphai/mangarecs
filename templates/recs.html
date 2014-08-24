@@ -15,6 +15,7 @@
         <input style='margin: 5% 40% 0 40%; width: 20%; font-size: 1.3em;' type="submit" name="submit" value="Search">
       </form>
     </div>
+    {% if not config.DEBUG %}
     <script>
       (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
         (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
@@ -24,7 +25,8 @@
         ga('create', 'UA-54114575-1', 'auto');
         ga('send', 'pageview');
       
-     </script>    
+      </script>    
+     {% endif %}
   </body>
 </html>
 

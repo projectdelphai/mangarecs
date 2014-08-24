@@ -9,9 +9,11 @@ from sqlalchemy import Column, Integer, Text
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy import distinct
 from sqlalchemy import func,desc,asc
+import config
 import os
 
 app = Flask(__name__)
+app.config.from_object(config)
 if "DATABASE_URL" in os.environ:
     engine = create_engine(os.environ['DATABASE_URL'], echo=True)
 else:
