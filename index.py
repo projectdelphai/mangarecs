@@ -80,14 +80,15 @@ def recommendations(manga_name):
         manga_name = users[0].name
     users = [item.recommender for item in users]
     manga = session.query(Manga.name, func.count(Manga.name) ).filter(Manga.recommender.in_(users), func.lower(Manga.name) != manga_name.lower()).group_by(Manga.name).order_by(func.count(Manga.name)).all()
+    session.close()
     recs = [item.name for item in manga]
     recs.reverse()
     return render_template('recommendations.html', manga_name=manga_name, recs=recs)
 
 @app.route('/commonrecs/<manga_name>')
 def common_recommendations(manga_name):
-    session = Session()
     manga_name = manga_name.replace('_', ' ')
+    session = Session()
     users = session.query(Manga.name, Manga.recommender).filter(func.lower(Manga.name)==manga_name.lower()).all()
     if len(users) == 0:
         first_manga = session.query(Manga.name, func.levenshtein(Manga.name, manga_name,2,1,4)).filter(func.levenshtein(Manga.name, manga_name,2,1,4)<15).order_by(asc(func.levenshtein(Manga.name, manga_name,2,1,4))).first()
@@ -100,6 +101,7 @@ def common_recommendations(manga_name):
         manga_name = users[0].name
     users = [item.recommender for item in users]
     manga = session.query(Manga.name).filter(Manga.recommender.in_(users), func.lower(Manga.name) != manga_name.lower()).all()
+    session.close()
     recs = [item.name for item in manga]
     array = []
     for x in recs:
