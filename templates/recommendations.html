@@ -8,7 +8,8 @@
     <h1>Here are some recommendations based on: </h1>
     <h1> {{ manga_name }} </h2>
     {% for name in recs %}
-      <p>{{ name }}</p>
+      <a href='http://mangaupdates.com/series.html?id={{ name[1] }}' style='text-decoration:none'>{{ name[0] }}</a>
+      </br>
     {% endfor %}
   </div>
   {% if not config.DEBUG %}
