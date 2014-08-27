@@ -26,6 +26,8 @@ class Manga(Base):
     id = Column(Integer, primary_key=True)
     name = Column(Text)
     recommender = Column(Text)
+    mu_id = Column(Integer)
+    mu_name = Column(Text)
 
     def __repr__(self):
         return "<Manga(name='%s', recommender='%s')>" % (self.name, self,recommender)
@@ -79,9 +81,14 @@ def recommendations(manga_name):
     else:
         manga_name = users[0].name
     users = [item.recommender for item in users]
-    manga = session.query(Manga.name, func.count(Manga.name) ).filter(Manga.recommender.in_(users), func.lower(Manga.name) != manga_name.lower()).group_by(Manga.name).order_by(func.count(Manga.name)).all()
+    manga = session.query(Manga.name, Manga.mu_id, func.count(Manga.name) ).filter(Manga.recommender.in_(users), func.lower(Manga.name) != manga_name.lower()).group_by(Manga.name, Manga.mu_id).order_by(func.count(Manga.name)).all()
     session.close()
-    recs = [item.name for item in manga]
+    recs = []
+    for item in manga:
+        if item.mu_id:
+            recs.append([item.name, item.mu_id])
+        else:
+            recs.append([item.name, 0])
     recs.reverse()
     return render_template('recommendations.html', manga_name=manga_name, recs=recs)
 
@@ -100,13 +107,18 @@ def common_recommendations(manga_name):
     else:
         manga_name = users[0].name
     users = [item.recommender for item in users]
-    manga = session.query(Manga.name).filter(Manga.recommender.in_(users), func.lower(Manga.name) != manga_name.lower()).all()
+    manga = session.query(Manga.name, Manga.mu_id).filter(Manga.recommender.in_(users), func.lower(Manga.name) != manga_name.lower()).all()
     session.close()
     recs = [item.name for item in manga]
+    ids = [item.mu_id for item in manga]
+    i=0
     array = []
+    array2 = []
     for x in recs:
-        if (recs.count(x) > 1 and array.count(x) == 0):
-            array.append(x)
+        if (recs.count(x) > 1 and array2.count(x) == 0):
+            array.append([x, ids[i]])
+            array2.append(x)
+        i += 1
     return render_template('recommendations.html', manga_name=manga_name, recs=array)
 
 if __name__ == '__main__':
