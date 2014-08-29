@@ -17,7 +17,7 @@ app.config.from_object(config)
 if "DATABASE_URL" in os.environ:
     engine = create_engine(os.environ['DATABASE_URL'], echo_pool=True, pool_size=20, max_overflow=0)
 else:
-    engine = create_engine('postgresql://test:test@localhost/mangarecs', echo_pool="debug")
+    engine = create_engine('postgresql://test:test@localhost/mangarecs')
 
 Base = declarative_base()
 class Manga(Base):
@@ -28,6 +28,7 @@ class Manga(Base):
     recommender = Column(Text)
     mu_id = Column(Integer)
     mu_name = Column(Text)
+    level = Column(Text)
 
     def __repr__(self):
         return "<Manga(name='%s', recommender='%s')>" % (self.name, self,recommender)
@@ -48,7 +49,12 @@ def common_recs_index_without_trailing_slash():
 
 @app.route('/recs/')
 def recs_index():
-    return render_template('recs.html', type='recs')
+    session = Session()
+    beginner = session.query(Manga.name, Manga.mu_id, func.count(Manga.name)).filter(Manga.level == 'Beginner').group_by(Manga.name, Manga.mu_id).order_by(func.random()).limit(5).all()
+    intermediate = session.query(Manga.name, Manga.mu_id, func.count(Manga.name)).filter(Manga.level == 'Intermediate').group_by(Manga.name, Manga.mu_id).order_by(func.random()).limit(5).all()
+    advanced = session.query(Manga.name, Manga.mu_id, func.count(Manga.name)).filter(Manga.level == 'Advanced').group_by(Manga.name, Manga.mu_id).order_by(func.random()).limit(5).all()
+    session.close()
+    return render_template('recs.html', type='recs', beginner_recs=beginner, intermediate_recs=intermediate, advanced_recs=advanced)
 
 @app.route('/recs/', methods=['POST'])
 def recs_post():
@@ -58,7 +64,12 @@ def recs_post():
 
 @app.route('/commonrecs/')
 def common_recs_index():
-    return render_template('recs.html', type='commonrecs')
+    session = Session()
+    beginner = session.query(Manga.name, Manga.mu_id, func.count(Manga.name)).filter(Manga.level == 'Beginner').group_by(Manga.name, Manga.mu_id).order_by(func.random()).limit(5).all()
+    intermediate = session.query(Manga.name, Manga.mu_id, func.count(Manga.name)).filter(Manga.level == 'Intermediate').group_by(Manga.name, Manga.mu_id).order_by(func.random()).limit(5).all()
+    advanced = session.query(Manga.name, Manga.mu_id, func.count(Manga.name)).filter(Manga.level == 'Advanced').group_by(Manga.name, Manga.mu_id).order_by(func.random()).limit(5).all()
+    session.close()
+    return render_template('recs.html', type='commonrecs', beginner_recs=beginner, intermediate_recs=intermediate, advanced_recs=advanced)
 
 @app.route('/commonrecs/', methods=['POST'])
 def common_recs_post():
