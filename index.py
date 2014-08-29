@@ -81,14 +81,15 @@ def recommendations(manga_name):
     else:
         manga_name = users[0].name
     users = [item.recommender for item in users]
-    manga = session.query(Manga.name, Manga.mu_id, func.count(Manga.name) ).filter(Manga.recommender.in_(users), func.lower(Manga.name) != manga_name.lower()).group_by(Manga.name, Manga.mu_id).order_by(func.count(Manga.name)).all()
+    manga = session.query(Manga.name, Manga.mu_id, func.count(Manga.name) ).filter(Manga.recommender.in_(users), func.lower(Manga.name) != manga_name.lower()).group_by(Manga.name, Manga.mu_id).order_by(func.random()).all()
     session.close()
     recs = []
     for item in manga:
-        if item.mu_id:
-            recs.append([item.name, item.mu_id])
-        else:
-            recs.append([item.name, 0])
+        if item[2] == 1:
+            if item.mu_id:
+                recs.append([item.name, item.mu_id])
+            else:
+                recs.append([item.name, 0])
     recs.reverse()
     return render_template('recommendations.html', manga_name=manga_name, recs=recs)
 
@@ -107,7 +108,7 @@ def common_recommendations(manga_name):
     else:
         manga_name = users[0].name
     users = [item.recommender for item in users]
-    manga = session.query(Manga.name, Manga.mu_id).filter(Manga.recommender.in_(users), func.lower(Manga.name) != manga_name.lower()).all()
+    manga = session.query(Manga.name, Manga.mu_id).filter(Manga.recommender.in_(users), func.lower(Manga.name) != manga_name.lower()).order_by(func.random()).all()
     session.close()
     recs = [item.name for item in manga]
     ids = [item.mu_id for item in manga]
