@@ -1,14 +1,17 @@
 <DOCTYPE html>
 <html lang="en">
+  <head>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='mangarecs.css') }}">
+  </head>
   <body>
-    <div id='container' style='width:50%;margin:5% 25% 15% 25%; text-align:center'>
-      <h1 style='text-align:center; font-size: 2em;'>Manga Recs</h1>
-      <h3 style='text-align:center; font-size:1.5em;'>Sign up for further updates</h3>
+    <div id='container'>
+      <h1>Manga Recs</h1>
+      <h3>Sign up for further updates</h3>
       <form action="." method="POST">
-        <input style='margin: 0 255 0 25%; width: 50%; padding: 1%; font-size: 1.3em;' type="text" name="signup">
-        <input style='margin: 5% 40% 0 40%; width: 20%; font-size: 1.3em;' type="submit" name="submit" value="Signup">
+        <input id='textbox' type="text" name="signup">
+        <input id='submit' type="submit" name="submit" value="Signup">
       </form>
-      <div id='content' style='font-size:1.3em;line-height:2em;'>
+      <div id='content'>
         <p> Welcome to mangarecs! Currently there are two types of recommendations. When you search for recommendations using a manga title (i.e Vagabond), this application gathers a list of people who have marked Vagabond as a good manga. </p>
         <p> If you choose the <a href='/recs/'>Long Recs</a> method, you will get a list of all the unique manga that is also contained within those people's lists. With this option, you are most likely to get a ton of manga (possibly too many to go through) </p>
         <p> If you choose the <a href='/commonrecs/'>Common Recs</a> method, you will only get the manga that appears at least twice among all the recommenders' lists that were gathered. There will probably not be many manga (or none at all), but these are more likely to be within the same genre and/or you have a greater likelihood of enjoying them.</p>
@@ -29,4 +32,3 @@
       {% endif %}
   </body>
 </html>
-
