@@ -33,11 +33,30 @@ class Manga(Base):
     def __repr__(self):
         return "<Manga(name='%s', recommender='%s')>" % (self.name, self,recommender)
 
+class Signup(Base):
+    __tablename__ = 'emails'
+
+    id = Column(Integer, primary_key=True)
+    email = Column(Text)
+
+    def __repr__(self):
+        return "<Signup(email='%s')>" % (self.email)
+
 Session = sessionmaker(bind=engine)
 
 @app.route('/')
 def index():
     return render_template('index.html')
+
+@app.route('/', methods=['POST'])
+def signup():
+    email = request.form['signup']
+    session = Session()
+    signup = Signup(email=email)
+    session.add(signup)
+    session.commit()
+    session.close()
+    return render_template('signup_confirmation.html')
 
 @app.route('/recs')
 def recs_index_without_trailing_slash():
