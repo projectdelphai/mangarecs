@@ -51,6 +51,8 @@ def index():
 @app.route('/', methods=['POST'])
 def signup():
     email = request.form['signup']
+    if "@" not in email:
+        return render_template('signup_failed.html')
     session = Session()
     signup = Signup(email=email)
     session.add(signup)
