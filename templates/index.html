@@ -4,17 +4,19 @@
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='mangarecs.css') }}">
   </head>
   <body>
-    <div id='mainpage'>
+    <div id='container'>
       <div id='header'>
         <a href='/'>Home</a>
       </div>
-      <div id='container'>
+      <div id='content'>
+        </br>
         <h1>mangarecs</h1>
         <form id='form' action="." method="POST">
           <input id='textbox' type="text" name="text" placeholder="Search for a manga . . .">
           <input id='submit' type="submit" name="submit" value="Long Search">
           <input id='submit' type="submit" name="submit" value="Common Search">
         </form>
+        </br>
       </div>
       <div id='suggestions'>
         <h2> Manga Suggestions </h2>
