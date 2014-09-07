@@ -4,19 +4,48 @@
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='mangarecs.css') }}">
   </head>
   <body>
-    <div id='container'>
-      <h1>Manga Recs</h1>
-      <h3>Sign up for further updates</h3>
-      <form action="." method="POST">
-        <input id='textbox' type="text" name="signup">
-        <input id='submit' type="submit" name="submit" value="Signup">
-      </form>
-      <div id='content'>
-        <p> Welcome to mangarecs! Currently there are two types of recommendations. When you search for recommendations using a manga title (i.e Vagabond), this application gathers a list of people who have marked Vagabond as a good manga. </p>
-        <p> If you choose the <a href='/recs/'>Long Recs</a> method, you will get a list of all the unique manga that is also contained within those people's lists. With this option, you are most likely to get a ton of manga (possibly too many to go through) </p>
-        <p> If you choose the <a href='/commonrecs/'>Common Recs</a> method, you will only get the manga that appears at least twice among all the recommenders' lists that were gathered. There will probably not be many manga (or none at all), but these are more likely to be within the same genre and/or you have a greater likelihood of enjoying them.</p>
-        <p> This website was inspired by <a href='http://reddit.com/r/manga'>/r/manga</a>. If you have any issues, comments, or suggestions feel free to message /u/wmcscrooge on reddit, email me at projectdelphai@gmail.com, or raise an issue at the <a href='http://github.com/projectdelphai/mangarecs'>github repo</a>.</p>
+    <div id='mainpage'>
+      <div id='header'>
+        <a href='/'>Home</a>
       </div>
+      <div id='container'>
+        <h1>mangarecs</h1>
+        <form id='form' action="." method="POST">
+          <input id='textbox' type="text" name="text" placeholder="Search for a manga . . .">
+          <input id='submit' type="submit" name="submit" value="Long Search">
+          <input id='submit' type="submit" name="submit" value="Common Search">
+        </form>
+      </div>
+      <div id='suggestions'>
+        <h2> Manga Suggestions </h2>
+        <div id='suggestionspane'>
+          <h3>Beginner</h3>
+          {% for item in beginner_recs %}
+          <a href="http://www.mangaupdates.com/series.html?id={{item[1]}}" style='text-decoration:none'>{{item.name}}</a>
+          </br>
+          {% endfor %}
+        </div>
+        <div id='suggestionspane'>
+          <h3>Intermediate</h3>
+          {% for item in intermediate_recs %}
+          <a href="http://www.mangaupdates.com/series.html?id={{item[1]}}" style='text-decoration:none'>{{item.name}}</a>
+          </br>
+          {% endfor %}
+        </div>
+        <div id='suggestionspane'>
+          <h3>Advanced</h3>
+          {% for item in advanced_recs %}
+          <a href="http://www.mangaupdates.com/series.html?id={{item[1]}}" style='text-decoration:none'>{{item.name}}</a>
+          </br>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+    <div id='footer'>
+      <form id='signup_form' action="." method="POST">
+        <input id='signup_textbox' type="text" name="signup" placeholder = "Signup for updates">
+        <input id='signup_submit' type="submit" name="submit" value="Signup">
+      </form>
     </div>
     {% if not config.DEBUG %}
     <script>
@@ -28,7 +57,8 @@
         ga('create', 'UA-54114575-1', 'auto');
         ga('send', 'pageview');
       
-      </script>
-      {% endif %}
+      </script>    
+     {% endif %}
   </body>
 </html>
+

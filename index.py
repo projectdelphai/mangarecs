@@ -46,57 +46,32 @@ Session = sessionmaker(bind=engine)
 
 @app.route('/')
 def index():
-    return render_template('index.html')
+    session = Session()
+    beginner_recs = session.query(Manga.name, Manga.mu_id, func.count(Manga.name)).filter(Manga.level == 'Beginner').group_by(Manga.name, Manga.mu_id).order_by(func.random()).limit(5).all()
+    intermediate_recs = session.query(Manga.name, Manga.mu_id, func.count(Manga.name)).filter(Manga.level == 'Intermediate').group_by(Manga.name, Manga.mu_id).order_by(func.random()).limit(5).all()
+    advanced_recs = session.query(Manga.name, Manga.mu_id, func.count(Manga.name)).filter(Manga.level == 'Advanced').group_by(Manga.name, Manga.mu_id).order_by(func.random()).limit(5).all()
+    session.close()
+    return render_template('index.html', beginner_recs=beginner_recs,intermediate_recs=intermediate_recs,advanced_recs=advanced_recs)
 
 @app.route('/', methods=['POST'])
-def signup():
-    email = request.form['signup']
-    if "@" not in email:
-        return render_template('signup_failed.html')
-    session = Session()
-    signup = Signup(email=email)
-    session.add(signup)
-    session.commit()
-    session.close()
-    return render_template('signup_confirmation.html')
-
-@app.route('/recs')
-def recs_index_without_trailing_slash():
-    return redirect(url_for('recs_index'))
-
-@app.route('/commonrecs')
-def common_recs_index_without_trailing_slash():
-    return redirect(url_for('common_recs_index'))
-
-@app.route('/recs/')
-def recs_index():
-    session = Session()
-    beginner = session.query(Manga.name, Manga.mu_id, func.count(Manga.name)).filter(Manga.level == 'Beginner').group_by(Manga.name, Manga.mu_id).order_by(func.random()).limit(5).all()
-    intermediate = session.query(Manga.name, Manga.mu_id, func.count(Manga.name)).filter(Manga.level == 'Intermediate').group_by(Manga.name, Manga.mu_id).order_by(func.random()).limit(5).all()
-    advanced = session.query(Manga.name, Manga.mu_id, func.count(Manga.name)).filter(Manga.level == 'Advanced').group_by(Manga.name, Manga.mu_id).order_by(func.random()).limit(5).all()
-    session.close()
-    return render_template('recs.html', type='recs', beginner_recs=beginner, intermediate_recs=intermediate, advanced_recs=advanced)
-
-@app.route('/recs/', methods=['POST'])
-def recs_post():
-    text = request.form['text']
-    text = text.replace(' ', '_')
-    return redirect(url_for('recommendations', manga_name=text))
-
-@app.route('/commonrecs/')
-def common_recs_index():
-    session = Session()
-    beginner = session.query(Manga.name, Manga.mu_id, func.count(Manga.name)).filter(Manga.level == 'Beginner').group_by(Manga.name, Manga.mu_id).order_by(func.random()).limit(5).all()
-    intermediate = session.query(Manga.name, Manga.mu_id, func.count(Manga.name)).filter(Manga.level == 'Intermediate').group_by(Manga.name, Manga.mu_id).order_by(func.random()).limit(5).all()
-    advanced = session.query(Manga.name, Manga.mu_id, func.count(Manga.name)).filter(Manga.level == 'Advanced').group_by(Manga.name, Manga.mu_id).order_by(func.random()).limit(5).all()
-    session.close()
-    return render_template('recs.html', type='commonrecs', beginner_recs=beginner, intermediate_recs=intermediate, advanced_recs=advanced)
-
-@app.route('/commonrecs/', methods=['POST'])
-def common_recs_post():
-    text = request.form['text']
-    text = text.replace(' ', '_')
-    return redirect(url_for('common_recommendations', manga_name=text))
+def index_post():
+   form = request.form['submit']
+   if form == 'Long Search':
+       text = request.form['text'].replace(' ', '_')
+       return redirect(url_for('recommendations', manga_name=text))
+   elif form == 'Common Search':
+       text = request.form['text'].replace(' ', '_')
+       return redirect(url_for('common_recommendations', manga_name=text))
+   elif form == 'Signup':
+       email = request.form['signup']
+       if "@" not in email:
+           return render_template('signup_failed.html')
+       session = Session()
+       signup = Signup(email=email)
+       session.add(signup)
+       session.commit()
+       session.close()
+       return render_template('signup_confirmation.html')
 
 @app.route('/recs/<manga_name>')
 def recommendations(manga_name):
