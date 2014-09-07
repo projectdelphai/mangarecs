@@ -13,8 +13,11 @@
         <h1>mangarecs</h1>
         <form id='form' action="." method="POST">
           <input id='textbox' type="text" name="text" placeholder="Search for a manga . . .">
-          <input id='submit' type="submit" name="submit" value="Long Search">
-          <input id='submit' type="submit" name="submit" value="Common Search">
+          <input type="checkbox" name="options" value="sametype"> Same type
+          <input type="checkbox" name="options" value="samegenre"> Same genre
+          <input type="checkbox" name="options" value="commonrecs"> Common Recommendations
+          <br>
+          <input id='submit' type="submit" name="submit" value="Search">
         </form>
         </br>
       </div>
