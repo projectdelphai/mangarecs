@@ -33,6 +33,8 @@
                 var classes = divs[i].className.split(" ");
                 if (classes[1] != "{{ demographic }}") {
                   divs[i].style.display = "none";
+                } else {
+                  divs[i].style.display = show;
                 }
               } else {
                 divs[i].style.display = show;
@@ -64,6 +66,8 @@
                 var classes = divs[i].className.split(" ");
                 if (classes[0] != "{{ type }}") {
                   divs[i].style.display = "none";
+                } else {
+                  divs[i].style.display = show;
                 }
               } else {
                 divs[i].style.display = show;
