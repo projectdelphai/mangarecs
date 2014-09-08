@@ -2,6 +2,86 @@
 <head>
   <title>Manga Recommendations</title>
   <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='mangarecs.css') }}">
+  <script type="text/javascript">
+    function contains(a, obj) {
+      for (var i = 0; i < a.length; i++) {
+        if (a[i] === obj) {
+          return true;
+        }
+      }
+      return false;
+    }
+    function hidetype(div) {
+      var types = [ "Manga", "Manhwa", "Manhua" ];
+      if (contains(types, div)) {
+        if (document.getElementById("sametype").checked) {
+          var show = "none";
+        } else {
+          var show = "block";
+        }
+        if (document.getElementById("samegenre").checked) {
+          var genreChecked = true;
+        } else {
+          var genreChecked = false;
+        }
+        for (type in types) {
+          if (div != types[type]) {
+            var raw_divs = document.getElementsByClassName(types[type]);
+            var divs = Array.prototype.slice.call(raw_divs);
+            for (var i = 0; i < divs.length; i++) {
+              if (genreChecked) {
+                var classes = divs[i].className.split(" ");
+                if (classes[1] != "{{ demographic }}") {
+                  divs[i].style.display = "none";
+                }
+              } else {
+                divs[i].style.display = show;
+              }
+            }
+          }
+        }
+      } 
+    }
+    function hidedemographic(div) {
+      var demographics = [ "Shounen", "Shoujo", "Seinen", "Josei" ];
+      if (contains(demographics, div)) {
+        if (document.getElementById("samegenre").checked) {
+          show = "none";
+        } else {
+          show = "block";
+        }
+        if (document.getElementById("sametype").checked) {
+          var typeChecked = true;
+        } else {
+          var typeChecked = false;
+        }
+        for (demographic in demographics) {
+          if (div != demographics[demographic]) {
+            var raw_divs = document.getElementsByClassName(demographics[demographic]);
+            var divs = Array.prototype.slice.call(raw_divs);
+            for (var i = 0; i < divs.length; i++) {
+              if (typeChecked) {
+                var classes = divs[i].className.split(" ");
+                if (classes[0] != "{{ type }}") {
+                  divs[i].style.display = "none";
+                }
+              } else {
+                divs[i].style.display = show;
+              }
+            }
+          }
+        }
+      }
+    }
+    window.onload = function() {
+      {% if checked[0] == "True" %}
+      hidetype('{{ type }}');
+      {% endif %}
+      {% if checked[1] == "True" %}
+      hidedemographic('{{ demographic }}');
+      {% endif %}
+    }
+  </script>
 </head>
 <body>
   <div id='header'>
@@ -10,9 +90,22 @@
   <div id='content'> 
     <h1>Here are some recommendations based on: </h1>
     <h1> {{ manga_name }} </h2>
+    {% if checked[0] == "True" %}
+    <input id="sametype" type="checkbox" name="options" value="sametype" onclick="hidetype('{{ type }}')" checked> Same type
+    {% else %}
+    <input id="sametype" type="checkbox" name="options" value="sametype" onclick="hidetype('{{ type }}')"> Same type
+    {% endif %}
+    {% if checked[1] == "True" %}
+    <input id="samegenre" type="checkbox" name="options" value="samegenre" onclick="hidedemographic('{{ demographic }}')" checked> Same genre
+    {% else %}
+    <input id="samegenre" type="checkbox" name="options" value="samegenre" onclick="hidedemographic('{{ demographic }}')"> Same genre
+    {% endif %}
+    <!--<input type="checkbox" name="options" value="sametime"> Common Recommendations--!>
     {% for name in recs %}
-      <a href='http://mangaupdates.com/series.html?id={{ name[1] }}' style='text-decoration:none'>{{ name[0] }}</a>
+    <div class="{{ name[1]}} {{ name[2] }}">
+      <a href='http://mangaupdates.com/series.html?id={{ name[3] }}' style='text-decoration:none'>{{ name[0] }}</a>
       </br>
+    </div>
     {% endfor %}
   </div>
   {% if not config.DEBUG %}

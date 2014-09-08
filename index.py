@@ -105,36 +105,35 @@ def recommendations(manga_name):
     demographic = manga_details[1]
     users = [item.recommender for item in users]
     if commonrecs == "True":
-        raw_manga = session.query(Manga.name, Manga.mu_id).filter(Manga.recommender.in_(users), func.lower(Manga.name) != manga_name.lower()).order_by(func.random())
+        raw_manga = session.query(Manga.name, Manga.mu_id, Manga.type, Manga.demographic).filter(Manga.recommender.in_(users), func.lower(Manga.name) != manga_name.lower()).order_by(func.random())
     else:
-        raw_manga = session.query(Manga.name, Manga.mu_id, func.count(Manga.name) ).filter(and_(Manga.recommender.in_(users), func.lower(Manga.name) != manga_name.lower())).group_by(Manga.name, Manga.mu_id).order_by(func.random())
-    if sametype == "True":
-        raw_manga = raw_manga.filter(Manga.type == type)
-    if samegenre == "True":
-        raw_manga = raw_manga.filter(Manga.demographic == demographic)
+        raw_manga = session.query(Manga.name, Manga.mu_id, Manga.type, Manga.demographic, func.count(Manga.name) ).filter(and_(Manga.recommender.in_(users), func.lower(Manga.name) != manga_name.lower())).group_by(Manga.name, Manga.mu_id, Manga.type, Manga.demographic).order_by(func.random())
     manga = raw_manga.all()
     session.close()
     if commonrecs == "True":
         raw_recs = [item.name for item in manga]
         ids = [item.mu_id for item in manga]
+        types = [item.type for item in manga]
+        demographics = [item.demographic for item in manga]
         i=0
         recs = []
         array2 = []
         for x in raw_recs:
             if (raw_recs.count(x) > 1 and array2.count(x) == 0):
-                recs.append([x, ids[i]])
+                recs.append([x, types[i], demographics[i], ids[i]])
                 array2.append(x)
             i += 1
     else:
         recs = []
         for item in manga:
-            if item[2] == 1:
+            if item[4] == 1:
                 if item.mu_id:
-                    recs.append([item.name, item.mu_id])
+                    recs.append([item.name, item.type, item.demographic, item.mu_id])
                 else:
-                    recs.append([item.name, 0])
+                    recs.append([item.name, item.type, item.demograhpic, 0])
         recs.reverse()
-    return render_template('recommendations.html', manga_name=manga_name, recs=recs)
+    checked = [ sametype, samegenre, commonrecs ]
+    return render_template('recommendations.html', manga_name=manga_name, recs=recs, checked=checked, type=type, demographic=demographic)
 
 if __name__ == '__main__':
     app.run(debug=True);
