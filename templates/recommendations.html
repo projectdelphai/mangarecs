@@ -29,15 +29,17 @@
             var raw_divs = document.getElementsByClassName(types[type]);
             var divs = Array.prototype.slice.call(raw_divs);
             for (var i = 0; i < divs.length; i++) {
-              if (genreChecked) {
-                var classes = divs[i].className.split(" ");
-                if (classes[1] != "{{ demographic }}") {
-                  divs[i].style.display = "none";
+              if (divs[i].className.indexOf("show") > -1) {
+                if (genreChecked) {
+                  var classes = divs[i].className.split(" ");
+                  if (classes[1] != "{{ demographic }}") {
+                    divs[i].style.display = "none";
+                  } else {
+                    divs[i].style.display = show;
+                  }
                 } else {
                   divs[i].style.display = show;
                 }
-              } else {
-                divs[i].style.display = show;
               }
             }
           }
@@ -62,19 +64,54 @@
             var raw_divs = document.getElementsByClassName(demographics[demographic]);
             var divs = Array.prototype.slice.call(raw_divs);
             for (var i = 0; i < divs.length; i++) {
-              if (typeChecked) {
-                var classes = divs[i].className.split(" ");
-                if (classes[0] != "{{ type }}") {
-                  divs[i].style.display = "none";
+              if (divs[i].className.indexOf("show") > -1) {
+                if (typeChecked) {
+                  var classes = divs[i].className.split(" ");
+                  if (classes[0] != "{{ type }}") {
+                    divs[i].style.display = "none";
+                  } else {
+                    divs[i].style.display = show;
+                  }
                 } else {
                   divs[i].style.display = show;
                 }
-              } else {
-                divs[i].style.display = show;
               }
             }
           }
         }
+      }
+    }
+    function hidecommon() {
+      var raw_divs = document.getElementsByClassName("show");
+      var raw_divs2 = document.getElementsByClassName("hide");
+      var divs = Array.prototype.slice.call(raw_divs);
+      var divs2 = Array.prototype.slice.call(raw_divs2);
+
+      for (var i=0; i < divs.length; i++) {
+        var div = divs[i];
+        div.classList.remove('show');
+        div.classList.add('hide');
+      }
+      for (var i=0; i < divs2.length; i++) {
+        var div = divs2[i];
+        div.classList.remove('hide');
+        div.classList.add('show');
+      }
+      var raw_divs = document.getElementsByClassName("show");
+      var divs = Array.prototype.slice.call(raw_divs);
+      for (var i=0; i < divs.length; i++) {
+        divs[i].style.display = "block";
+      }
+      var raw_divs = document.getElementsByClassName("hide");
+      var divs = Array.prototype.slice.call(raw_divs);
+      for (var i=0; i < divs.length; i++) {
+        divs[i].style.display = "none";
+      }
+      if (document.getElementById('sametype').checked) {
+        hidetype('{{ type }}');
+      } 
+      if (document.getElementById('samegenre').checked) {
+        hidedemographic('{{ demographic }}');
       }
     }
     function hidecommonlong() {
@@ -117,19 +154,23 @@
     {% else %}
     <input id="samegenre" type="checkbox" name="options" value="samegenre" onclick="hidedemographic('{{ demographic }}')"> Same genre
     {% endif %}
-    <!--<input type="checkbox" name="options" value="sametime"> Common Recommendations--!>
+    {% if checked[2] == "True" %}
+    <input id="commonrecs" type="checkbox" name="options" value="sametime" onclick="hidecommon()" checked> Common Recommendations
+    {% else %}
+    <input id="commonrecs" type="checkbox" name="options" value="sametime" onclick="hidecommon()" > Common Recommendations
+    {% endif %}
     {% for name in recs %}
     {% if checked[2] == "True" %}
       {% if name[4] == "common" %}
-      <div name="show" class="{{ name[1]}} {{ name[2] }} {{ name[4] }}">
+      <div class="{{ name[1]}} {{ name[2] }} {{ name[4] }} show">
       {% else %}
-      <div name="hide" class="{{ name[1]}} {{ name[2] }} {{ name[4] }}">
+      <div class="{{ name[1]}} {{ name[2] }} {{ name[4] }} hide">
       {% endif %}
     {% else %}
       {% if name[4] == "common" %}
-      <div name="hide" class="{{ name[1]}} {{ name[2] }} {{ name[4] }}">
+      <div class="{{ name[1]}} {{ name[2] }} {{ name[4] }} hide">
       {% else %}
-      <div name="show" class="{{ name[1]}} {{ name[2] }} {{ name[4] }}">
+      <div class="{{ name[1]}} {{ name[2] }} {{ name[4] }} show">
       {% endif %}
     {% endif %}
       <a href='http://mangaupdates.com/series.html?id={{ name[3] }}' style='text-decoration:none'>{{ name[0] }}</a>

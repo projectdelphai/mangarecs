@@ -104,7 +104,6 @@ def recommendations(manga_name):
     type = manga_details[0]
     demographic = manga_details[1]
     users = [item.recommender for item in users]
-    #if commonrecs == "True":
     raw_common_manga = session.query(Manga.name, Manga.mu_id, Manga.type, Manga.demographic).filter(Manga.recommender.in_(users), func.lower(Manga.name) != manga_name.lower()).order_by(func.random())
     raw_long_manga = session.query(Manga.name, Manga.mu_id, Manga.type, Manga.demographic, func.count(Manga.name) ).filter(and_(Manga.recommender.in_(users), func.lower(Manga.name) != manga_name.lower())).group_by(Manga.name, Manga.mu_id, Manga.type, Manga.demographic).order_by(func.random())
     long_manga = raw_long_manga.all()
@@ -133,8 +132,6 @@ def recommendations(manga_name):
     recs2.reverse()
     recs = recs1 + recs2
     checked = [ sametype, samegenre, commonrecs ]
-    print(checked)
-    print(len(recs))
     return render_template('recommendations.html', manga_name=manga_name, recs=recs, checked=checked, type=type, demographic=demographic)
 
 if __name__ == '__main__':
