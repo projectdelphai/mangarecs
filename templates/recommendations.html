@@ -77,6 +77,18 @@
         }
       }
     }
+    function hidecommonlong() {
+      {% if checked[2] == "True" %}
+      var rec = "long";
+      {% else %}
+      var rec = "common";
+      {% endif %}
+      var raw_divs = document.getElementsByClassName(rec);
+      var divs = Array.prototype.slice.call(raw_divs);
+      for (var i = 0; i < divs.length; i++) {
+        divs[i].style.display = "none";
+      }
+    }
     window.onload = function() {
       {% if checked[0] == "True" %}
       hidetype('{{ type }}');
@@ -84,6 +96,7 @@
       {% if checked[1] == "True" %}
       hidedemographic('{{ demographic }}');
       {% endif %}
+      hidecommonlong();
     }
   </script>
 </head>
@@ -106,7 +119,19 @@
     {% endif %}
     <!--<input type="checkbox" name="options" value="sametime"> Common Recommendations--!>
     {% for name in recs %}
-    <div class="{{ name[1]}} {{ name[2] }}">
+    {% if checked[2] == "True" %}
+      {% if name[4] == "common" %}
+      <div name="show" class="{{ name[1]}} {{ name[2] }} {{ name[4] }}">
+      {% else %}
+      <div name="hide" class="{{ name[1]}} {{ name[2] }} {{ name[4] }}">
+      {% endif %}
+    {% else %}
+      {% if name[4] == "common" %}
+      <div name="hide" class="{{ name[1]}} {{ name[2] }} {{ name[4] }}">
+      {% else %}
+      <div name="show" class="{{ name[1]}} {{ name[2] }} {{ name[4] }}">
+      {% endif %}
+    {% endif %}
       <a href='http://mangaupdates.com/series.html?id={{ name[3] }}' style='text-decoration:none'>{{ name[0] }}</a>
       </br>
     </div>
