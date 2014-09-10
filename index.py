@@ -1,14 +1,8 @@
-from flask import Flask
-from flask import request
-from flask import redirect
-from flask import url_for
-from flask import render_template
-from sqlalchemy import create_engine
+from flask import Flask,request,redirect,url_for,render_template
+from sqlalchemy import create_engine,func,desc,asc,and_,distinct
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy import Column, Integer, Text
 from sqlalchemy.orm import sessionmaker
-from sqlalchemy import distinct
-from sqlalchemy import func,desc,asc, and_
+from sqlalchemy import Column, Integer, Text
 import config
 import os
 
@@ -61,15 +55,10 @@ def index_post():
    form = request.form['submit']
    if form == 'Search':
        options = request.form.getlist("options")
-       sametype = False
-       samegenre = False
-       commonrecs = False
-       if "sametype" in options:
-           sametype = True
-       if "samegenre" in options:
-           samegenre = True
-       if "commonrecs" in options:
-           commonrecs = True
+       sametype = True if "sametype" in options else False
+       samegenre = True if "samegenre" in options else False
+       commonrecs = True if "commonrecs" in options else False
+       
        text = request.form['text'].replace(' ', '_')
        return redirect(url_for('recommendations', manga_name=text, sametype=sametype, samegenre=samegenre, commonrecs=commonrecs))
    elif form == 'Signup':
@@ -88,9 +77,11 @@ def recommendations(manga_name):
     sametype = request.args.get('sametype')
     samegenre = request.args.get('samegenre')
     commonrecs = request.args.get('commonrecs')
-    session = Session()
     manga_name = manga_name.replace('_', ' ')
+
+    session = Session()
     users = session.query(Manga.name, Manga.recommender).filter(func.lower(Manga.name)==manga_name.lower()).all()
+    
     if len(users) == 0:
         first_manga = session.query(Manga.name, func.levenshtein(Manga.name, manga_name,2,1,4)).filter(func.levenshtein(Manga.name, manga_name,2,1,4)<15).order_by(asc(func.levenshtein(Manga.name, manga_name,2,1,4))).first()
         if first_manga:
@@ -100,38 +91,23 @@ def recommendations(manga_name):
             users = []
     else:
         manga_name = users[0].name
+  
+    users = [item.recommender for item in users]
+    common_manga = session.query(Manga.name, Manga.mu_id, Manga.type, Manga.demographic, func.count(Manga.name)).filter(Manga.recommender.in_(users), func.lower(Manga.name) != manga_name.lower()).group_by(Manga.name, Manga.mu_id, Manga.type, Manga.demographic).having(func.count(Manga.name) > 1).order_by(func.random()).all()
+    long_manga = session.query(Manga.name, Manga.mu_id, Manga.type, Manga.demographic, func.count(Manga.name) ).filter(and_(Manga.recommender.in_(users), func.lower(Manga.name) != manga_name.lower())).group_by(Manga.name, Manga.mu_id, Manga.type, Manga.demographic).having(func.count(Manga.name) == 1).order_by(func.random()).all()
     manga_details = session.query(Manga.type, Manga.demographic).filter(Manga.name == manga_name).first()
+    session.close()
+    
     type = manga_details[0]
     demographic = manga_details[1]
-    users = [item.recommender for item in users]
-    raw_common_manga = session.query(Manga.name, Manga.mu_id, Manga.type, Manga.demographic).filter(Manga.recommender.in_(users), func.lower(Manga.name) != manga_name.lower()).order_by(func.random())
-    raw_long_manga = session.query(Manga.name, Manga.mu_id, Manga.type, Manga.demographic, func.count(Manga.name) ).filter(and_(Manga.recommender.in_(users), func.lower(Manga.name) != manga_name.lower())).group_by(Manga.name, Manga.mu_id, Manga.type, Manga.demographic).order_by(func.random())
-    long_manga = raw_long_manga.all()
-    common_manga = raw_common_manga.all()
-    session.close()
-    raw_recs = [item.name for item in common_manga]
-    ids = [item.mu_id for item in common_manga]
-    types = [item.type for item in common_manga]
-    demographics = [item.demographic for item in common_manga]
-    i=0
-    recs1 = []
-    array2 = []
-    for x in raw_recs:
-        if (raw_recs.count(x) > 1 and array2.count(x) == 0):
-            recs1.append([x, types[i], demographics[i], ids[i], "common"])
-            array2.append(x)
-        i += 1
-    recs2 = []
-    for item in long_manga:
-        if item[4] == 1:
-            if item.mu_id:
-                recs2.append([item.name, item.type, item.demographic, item.mu_id, "long"])
-            else:
-                recs2.append([item.name, item.type, item.demographic, 0, "long"])
-    recs1.reverse()
-    recs2.reverse()
-    recs = recs1 + recs2
     checked = [ sametype, samegenre, commonrecs ]
+ 
+    recs=[]
+    for item in common_manga:
+        recs.append([item.name, item.type, item.demographic, item.mu_id, "common"])
+    for item in long_manga:
+        recs.append([item.name, item.type, item.demographic, item.mu_id, "long"])
+    
     return render_template('recommendations.html', manga_name=manga_name, recs=recs, checked=checked, type=type, demographic=demographic)
 
 if __name__ == '__main__':

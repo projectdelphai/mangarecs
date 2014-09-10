@@ -14,20 +14,17 @@
     function hidetype(div) {
       var types = [ "Manga", "Manhwa", "Manhua" ];
       if (contains(types, div)) {
+        var show = "block"
         if (document.getElementById("sametype").checked) {
           var show = "none";
-        } else {
-          var show = "block";
         }
+        var genreChecked = false;
         if (document.getElementById("samegenre").checked) {
           var genreChecked = true;
-        } else {
-          var genreChecked = false;
         }
         for (type in types) {
           if (div != types[type]) {
-            var raw_divs = document.getElementsByClassName(types[type]);
-            var divs = Array.prototype.slice.call(raw_divs);
+            var divs = Array.prototype.slice.call(document.getElementsByClassName(types[type]));
             for (var i = 0; i < divs.length; i++) {
               if (divs[i].className.indexOf("show") > -1) {
                 if (genreChecked) {
@@ -49,20 +46,17 @@
     function hidedemographic(div) {
       var demographics = [ "Shounen", "Shoujo", "Seinen", "Josei" ];
       if (contains(demographics, div)) {
+        show = "block";
         if (document.getElementById("samegenre").checked) {
           show = "none";
-        } else {
-          show = "block";
         }
+        var typeChecked = false;
         if (document.getElementById("sametype").checked) {
           var typeChecked = true;
-        } else {
-          var typeChecked = false;
-        }
+        } 
         for (demographic in demographics) {
           if (div != demographics[demographic]) {
-            var raw_divs = document.getElementsByClassName(demographics[demographic]);
-            var divs = Array.prototype.slice.call(raw_divs);
+            var divs = Array.prototype.slice.call(document.getElementsByClassName(demographics[demographic]));
             for (var i = 0; i < divs.length; i++) {
               if (divs[i].className.indexOf("show") > -1) {
                 if (typeChecked) {
@@ -82,10 +76,8 @@
       }
     }
     function hidecommon() {
-      var raw_divs = document.getElementsByClassName("show");
-      var raw_divs2 = document.getElementsByClassName("hide");
-      var divs = Array.prototype.slice.call(raw_divs);
-      var divs2 = Array.prototype.slice.call(raw_divs2);
+      var divs = Array.prototype.slice.call(document.getElementsByClassName("show"));
+      var divs2 = Array.prototype.slice.call(document.getElementsByClassName("hide"));
 
       for (var i=0; i < divs.length; i++) {
         var div = divs[i];
