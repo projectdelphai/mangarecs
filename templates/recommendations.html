@@ -3,129 +3,68 @@
   <title>Manga Recommendations</title>
   <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='mangarecs.css') }}">
   <script type="text/javascript">
-    function contains(a, obj) {
-      for (var i = 0; i < a.length; i++) {
-        if (a[i] === obj) {
-          return true;
-        }
-      }
-      return false;
-    }
-    function hidetype(div) {
-      var types = [ "Manga", "Manhwa", "Manhua" ];
-      if (contains(types, div)) {
-        var show = "block"
-        if (document.getElementById("sametype").checked) {
-          var show = "none";
-        }
-        var genreChecked = false;
-        if (document.getElementById("samegenre").checked) {
-          var genreChecked = true;
-        }
-        for (type in types) {
-          if (div != types[type]) {
-            var divs = Array.prototype.slice.call(document.getElementsByClassName(types[type]));
-            for (var i = 0; i < divs.length; i++) {
-              if (divs[i].className.indexOf("show") > -1) {
-                if (genreChecked) {
-                  var classes = divs[i].className.split(" ");
-                  if (classes[1] != "{{ demographic }}") {
-                    divs[i].style.display = "none";
-                  } else {
-                    divs[i].style.display = show;
-                  }
-                } else {
-                  divs[i].style.display = show;
-                }
-              }
-            }
-          }
-        }
-      } 
-    }
-    function hidedemographic(div) {
-      var demographics = [ "Shounen", "Shoujo", "Seinen", "Josei" ];
-      if (contains(demographics, div)) {
-        show = "block";
-        if (document.getElementById("samegenre").checked) {
-          show = "none";
-        }
-        var typeChecked = false;
-        if (document.getElementById("sametype").checked) {
-          var typeChecked = true;
-        } 
-        for (demographic in demographics) {
-          if (div != demographics[demographic]) {
-            var divs = Array.prototype.slice.call(document.getElementsByClassName(demographics[demographic]));
-            for (var i = 0; i < divs.length; i++) {
-              if (divs[i].className.indexOf("show") > -1) {
-                if (typeChecked) {
-                  var classes = divs[i].className.split(" ");
-                  if (classes[0] != "{{ type }}") {
-                    divs[i].style.display = "none";
-                  } else {
-                    divs[i].style.display = show;
-                  }
-                } else {
-                  divs[i].style.display = show;
-                }
-              }
-            }
-          }
-        }
-      }
-    }
-    function hidecommon() {
-      var divs = Array.prototype.slice.call(document.getElementsByClassName("show"));
-      var divs2 = Array.prototype.slice.call(document.getElementsByClassName("hide"));
-
-      for (var i=0; i < divs.length; i++) {
-        var div = divs[i];
-        div.classList.remove('show');
-        div.classList.add('hide');
-      }
-      for (var i=0; i < divs2.length; i++) {
-        var div = divs2[i];
-        div.classList.remove('hide');
-        div.classList.add('show');
-      }
-      var raw_divs = document.getElementsByClassName("show");
-      var divs = Array.prototype.slice.call(raw_divs);
-      for (var i=0; i < divs.length; i++) {
-        divs[i].style.display = "block";
-      }
-      var raw_divs = document.getElementsByClassName("hide");
-      var divs = Array.prototype.slice.call(raw_divs);
-      for (var i=0; i < divs.length; i++) {
-        divs[i].style.display = "none";
-      }
+    function sortFilters() {
+      typeChecked = false;
+      genreChecked = false;
+      commonChecked = false;
       if (document.getElementById('sametype').checked) {
-        hidetype('{{ type }}');
-      } 
-      if (document.getElementById('samegenre').checked) {
-        hidedemographic('{{ demographic }}');
+        typeChecked = true;
       }
-    }
-    function hidecommonlong() {
-      {% if checked[2] == "True" %}
-      var rec = "long";
-      {% else %}
-      var rec = "common";
-      {% endif %}
-      var raw_divs = document.getElementsByClassName(rec);
-      var divs = Array.prototype.slice.call(raw_divs);
-      for (var i = 0; i < divs.length; i++) {
+      if (document.getElementById('samegenre').checked) {
+        genreChecked = true;
+      }
+      if (document.getElementById('commonrecs').checked) {
+        commonChecked = true;
+      }
+      var divs = Array.prototype.slice.call(document.getElementsByClassName('rec'));
+      var first_sort = [];
+      if (typeChecked) {
+        for (var i=0; i<divs.length;i++) {
+          className = divs[i].className;
+          if (className.indexOf('{{ type }}') > -1) {
+            first_sort[first_sort.length] = divs[i];
+          } else {
+          }
+        }
+      } else {
+        first_sort = divs;
+      }
+      second_sort = [];
+      if (genreChecked) {
+        for (var i=0;i<first_sort.length;i++) {
+          className = first_sort[i].className;
+          if (className.indexOf('{{ demographic }}') > -1) {
+            second_sort[second_sort.length] = first_sort[i];
+          }
+        }
+      } else {
+        second_sort = first_sort;
+      }
+      third_sort = [];
+      if (commonChecked) {
+        for (var i=0;i<second_sort.length;i++) {
+          className = second_sort[i].className;
+          if (className.indexOf('common') > -1) {
+            third_sort[third_sort.length] = second_sort[i];
+          }
+        }
+      } else {
+        for (var i=0; i< second_sort.length; i++) {
+          className = second_sort[i].className;
+          if (className.indexOf('long') > -1) {
+            third_sort[third_sort.length] = second_sort[i];
+          }
+        }
+      }
+      for (var i=0; i<divs.length; i++) {
         divs[i].style.display = "none";
+      }
+      for (var i=0; i<third_sort.length; i++) {
+        third_sort[i].style.display = "block";
       }
     }
     window.onload = function() {
-      {% if checked[0] == "True" %}
-      hidetype('{{ type }}');
-      {% endif %}
-      {% if checked[1] == "True" %}
-      hidedemographic('{{ demographic }}');
-      {% endif %}
-      hidecommonlong();
+      sortFilters();
     }
   </script>
 </head>
@@ -137,34 +76,22 @@
     <h1>Here are some recommendations based on: </h1>
     <h1> {{ manga_name }} </h2>
     {% if checked[0] == "True" %}
-    <input id="sametype" type="checkbox" name="options" value="sametype" onclick="hidetype('{{ type }}')" checked> Same type
+    <input id="sametype" type="checkbox" name="options" value="sametype" onclick="sortFilters()" checked> Same type
     {% else %}
-    <input id="sametype" type="checkbox" name="options" value="sametype" onclick="hidetype('{{ type }}')"> Same type
+    <input id="sametype" type="checkbox" name="options" value="sametype" onclick="sortFilters()"> Same type
     {% endif %}
     {% if checked[1] == "True" %}
-    <input id="samegenre" type="checkbox" name="options" value="samegenre" onclick="hidedemographic('{{ demographic }}')" checked> Same genre
+    <input id="samegenre" type="checkbox" name="options" value="samegenre" onclick="sortFilters()" checked> Same genre
     {% else %}
-    <input id="samegenre" type="checkbox" name="options" value="samegenre" onclick="hidedemographic('{{ demographic }}')"> Same genre
+    <input id="samegenre" type="checkbox" name="options" value="samegenre" onclick="sortFilters()"> Same genre
     {% endif %}
     {% if checked[2] == "True" %}
-    <input id="commonrecs" type="checkbox" name="options" value="sametime" onclick="hidecommon()" checked> Common Recommendations
+    <input id="commonrecs" type="checkbox" name="options" value="sametime" onclick="sortFilters()" checked> Common Recommendations
     {% else %}
-    <input id="commonrecs" type="checkbox" name="options" value="sametime" onclick="hidecommon()" > Common Recommendations
+    <input id="commonrecs" type="checkbox" name="options" value="sametime" onclick="sortFilters()" > Common Recommendations
     {% endif %}
     {% for name in recs %}
-    {% if checked[2] == "True" %}
-      {% if name[4] == "common" %}
-      <div class="{{ name[1]}} {{ name[2] }} {{ name[4] }} show">
-      {% else %}
-      <div class="{{ name[1]}} {{ name[2] }} {{ name[4] }} hide">
-      {% endif %}
-    {% else %}
-      {% if name[4] == "common" %}
-      <div class="{{ name[1]}} {{ name[2] }} {{ name[4] }} hide">
-      {% else %}
-      <div class="{{ name[1]}} {{ name[2] }} {{ name[4] }} show">
-      {% endif %}
-    {% endif %}
+      <div class="{{ name[1]}} {{ name[2] }} {{ name[4] }} rec">
       <a href='http://mangaupdates.com/series.html?id={{ name[3] }}' style='text-decoration:none'>{{ name[0] }}</a>
       </br>
     </div>
