@@ -41,6 +41,10 @@ class Signup(Base):
 
 Session = sessionmaker(bind=engine)
 
+@app.route('/about.html')
+def help():
+    return render_template('about.html')
+
 @app.route('/')
 def index():
     session = Session()

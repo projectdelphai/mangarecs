@@ -22,6 +22,10 @@ html,body, #container {
   text-align:right;
 }
 
+#header a {
+  padding-right: 1%;
+}
+
 #footer {
   clear: both;
   position:relative;

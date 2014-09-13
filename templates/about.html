@@ -1,0 +1,20 @@
+<html>
+  <head>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='mangarecs.css') }}">
+    <title> About </title>
+  </head>
+  <body>
+    <div id='container'>
+      <div id='header'>
+        <a href='/'>Home</a>
+      </div>
+      <div id='content'>
+        <h1>About</h1>
+        <p> Welcome to mangarecs! Currently there are two types of recommendations. When you search for recommendations using a manga title (i.e <a href="/recs/Vagabond?sametype=False&commonrecs=False&samegenre=False">Vagabond</a>), this application gathers a list of people who have marked Vagabond as a good manga. </p>
+        <p> If you choose the <b>Long Recs</b> method, you will get a list of all the unique manga that is also contained within those people's lists. With this option, you are most likely to get a ton of manga (possibly too many to go through) </p>
+        <p> If you choose the <b>Common Recs</b> method, you will only get the manga that appears at least twice among all the recommenders' lists that were gathered. There will probably not be many manga (or none at all), but these are more likely to be within the same genre and you have a greater likelihood of enjoying them.</p>
+        <p> This website was inspired by <a href='http://reddit.com/r/manga'>/r/manga</a> and is populated by their recommendations. If you have any issues, comments, or suggestions feel free to message <a href="http://reddit.com/u/wmcscrooge">/u/wmcscrooge</a> on reddit, email me at projectdelphai@gmail.com, or raise an issue at the <a href='http://github.com/projectdelphai/mangarecs'>github repo</a>.</p>
+      </div>
+    </div>
+  </body>
+</html>
